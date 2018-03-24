@@ -56,24 +56,48 @@ class Trainer(object):
         all_vars = tf.trainable_variables()
         slim.model_analyzer.analyze_vars(all_vars, print_info=True)
 
-        self.optimizer = tf.contrib.layers.optimize_loss(
-            loss=self.model.loss,
-            global_step=self.global_step,
-            learning_rate=self.learning_rate,
-            optimizer=tf.train.AdamOptimizer,
-            clip_gradients=20.0,
-            name='optimizer_loss'
-        )
+        if not config.no_adjust_learning_rate:
+            config.learning_rate = config.learning_rate * config.batch_size
 
-        self.optimizer_dummy = tf.contrib.layers.optimize_loss(
-            loss=self.model.loss,
-            global_step=self.global_step,
-            learning_rate=self.learning_rate,
-            optimizer=tf.train.AdamOptimizer,
-            clip_gradients=20.0,
-            increment_global_step=False,
-            name='optimizer_loss_dummy'
-        )
+        if not config.dataset == 'ImageNet':
+            self.optimizer = tf.contrib.layers.optimize_loss(
+                loss=self.model.loss,
+                global_step=self.global_step,
+                learning_rate=self.learning_rate,
+                optimizer=tf.train.AdamOptimizer,
+                clip_gradients=20.0,
+                name='optimizer_loss'
+            )
+
+            self.optimizer_dummy = tf.contrib.layers.optimize_loss(
+                loss=self.model.loss,
+                global_step=self.global_step,
+                learning_rate=self.learning_rate,
+                optimizer=tf.train.AdamOptimizer,
+                clip_gradients=20.0,
+                increment_global_step=False,
+                name='optimizer_loss_dummy'
+            )
+        else:
+            config.learning_rate = config.learning_rate * 1e2
+            self.optimizer = tf.contrib.layers.optimize_loss(
+                loss=self.model.loss,
+                global_step=self.global_step,
+                learning_rate=self.learning_rate,
+                optimizer=tf.train.MomentumOptimizer(self.learning_rate, momentum=0.9),
+                clip_gradients=20.0,
+                name='optimizer_loss'
+            )
+
+            self.optimizer_dummy = tf.contrib.layers.optimize_loss(
+                loss=self.model.loss,
+                global_step=self.global_step,
+                learning_rate=self.learning_rate,
+                optimizer=tf.train.MomentumOptimizer(self.learning_rate, momentum=0.9),
+                clip_gradients=20.0,
+                increment_global_step=False,
+                name='optimizer_loss_dummy'
+            )
 
         self.train_summary_op = tf.summary.merge_all(key='train')
         self.test_summary_op = tf.summary.merge_all(key='test')
@@ -226,8 +250,6 @@ def main():
     parser.add_argument('--no_adjust_learning_rate', action='store_true', default=False)
     config = parser.parse_args()
 
-    if not config.no_adjust_learning_rate:
-        config.learning_rate = config.learning_rate * config.batch_size
 
     if config.dataset == 'MNIST':
         import datasets.mnist as dataset
