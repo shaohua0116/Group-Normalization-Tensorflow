@@ -65,6 +65,16 @@ class Trainer(object):
             name='optimizer_loss'
         )
 
+        self.optimizer_dummy = tf.contrib.layers.optimize_loss(
+            loss=self.model.loss,
+            global_step=self.global_step,
+            learning_rate=self.learning_rate,
+            optimizer=tf.train.AdamOptimizer,
+            clip_gradients=20.0,
+            increment_global_step=False,
+            name='optimizer_loss_dummy'
+        )
+
         self.train_summary_op = tf.summary.merge_all(key='train')
         self.test_summary_op = tf.summary.merge_all(key='test')
 
@@ -112,17 +122,23 @@ class Trainer(object):
         log_step = self.log_step
         test_sample_step = self.test_sample_step
         write_summary_step = self.write_summary_step
+        step = 0
 
         for s in xrange(max_steps):
             # periodic inference
             if s % test_sample_step == 0:
-                step, accuracy, test_summary, loss, step_time = \
+                accuracy, test_summary, loss, step_time = \
                     self.run_test(self.batch_test, is_train=False)
                 self.log_step_message(step, accuracy, loss, step_time, is_train=False)
                 self.summary_writer.add_summary(test_summary, global_step=step)
 
             step, accuracy, train_summary, loss, step_time = \
-                self.run_single_step(self.batch_train, step=s, is_train=True)
+                self.run_single_step(self.batch_train, s, is_train=True)
+            if not self.config.no_adjust_learning_rate:
+                for i in range(int(self.config.max_batch_size/self.config.batch_size-1)):
+                    _, accuracy, train_summary, loss, step_time = \
+                        self.run_single_step(self.batch_train, s, is_train=True,
+                                             update_global_step=False)
 
             if s % log_step == 0:
                 self.log_step_message(step, accuracy, loss, step_time)
@@ -136,18 +152,20 @@ class Trainer(object):
                                 os.path.join(self.train_dir, 'model'),
                                 global_step=step)
 
-    def run_single_step(self, batch, step=None, is_train=True):
+    def run_single_step(self, batch, step, is_train=True, update_global_step=True):
         _start_time = time.time()
 
         batch_chunk = self.session.run(batch)
 
         fetch = [self.global_step, self.model.accuracy, self.train_summary_op,
-                 self.model.loss, self.check_op, self.optimizer]
+                 self.model.loss, self.check_op,
+                 self.optimizer if update_global_step else self.optimizer_dummy]
 
         fetch_values = self.session.run(
             fetch,
             feed_dict=self.model.get_feed_dict(batch_chunk, step=step)
         )
+
         [step, accuracy, summary, loss] = fetch_values[:4]
 
         _end_time = time.time()
@@ -159,15 +177,15 @@ class Trainer(object):
 
         batch_chunk = self.session.run(batch)
 
-        step, accuracy, summary, loss = self.session.run(
-            [self.global_step, self.model.accuracy,
+        accuracy, summary, loss = self.session.run(
+            [self.model.accuracy,
              self.test_summary_op, self.model.loss],
             feed_dict=self.model.get_feed_dict(batch_chunk, is_training=False)
         )
 
         _end_time = time.time()
 
-        return step, accuracy, summary, loss,  (_end_time - _start_time)
+        return accuracy, summary, loss,  (_end_time - _start_time)
 
     def log_step_message(self, step, accuracy, loss, step_time, is_train=True):
         if step_time == 0: step_time = 0.001
@@ -190,6 +208,7 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--max_batch_size', type=int, default=64)
     parser.add_argument('--prefix', type=str, default='default')
     parser.add_argument('--checkpoint', type=str, default=None)
     parser.add_argument('--dataset', type=str, default='MNIST',
@@ -202,8 +221,12 @@ def main():
     parser.add_argument('--write_summary_step', type=int, default=10)
     parser.add_argument('--ckpt_save_step', type=int, default=1000)
     # Learning
-    parser.add_argument('--learning_rate', type=float, default=1e-4)
+    parser.add_argument('--learning_rate', type=float, default=1e-5)
+    parser.add_argument('--no_adjust_learning_rate', action='store_true', default=False)
     config = parser.parse_args()
+
+    if not config.no_adjust_learning_rate:
+        config.learning_rate = config.learning_rate * config.batch_size
 
     if config.dataset == 'MNIST':
         import datasets.mnist as dataset
