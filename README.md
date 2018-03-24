@@ -5,6 +5,10 @@ This project includes a Tensorflow implementation of Group Normalizations propos
 
 Motivated by this phenomenon, the Group Normalization (GN) technique is proposed. Instead of normalizing along the batch dimension, GN divides the channels into groups and computes within each group the mean and variance. Therefore, GN’s computation is independent of batch sizes, and so does its accuracy. The experiment section of the paper demonstrates the effectiveness of GN in a wide range of visual tasks, which include image classification (ImageNet), object detection and segmentation (COCO), and video classification (Kinect). This repository is simply a toy repository for those who want to quickly test GN and compare it against BN.
 
+<img src="figure/gn.png" height="250"/>
+
+The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. $N$ denotes the batch axis, $C$ denotes the channel axis, and $H, W$ as the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
+
 ## Prerequisites
 
 - Python 2.7 or Python 3.3+
