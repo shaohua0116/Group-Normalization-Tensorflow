@@ -4,7 +4,6 @@ from util import log
 
 
 def norm(x, norm_type, is_train, G=32, esp=1e-5):
-    log.infov('Normalization: {}'.format(norm_type))
     with tf.variable_scope('{}_norm'.format(norm_type)):
         if norm_type == 'none':
             output = x
@@ -68,7 +67,10 @@ def conv2d(input, output_shape, is_train, info=False,
         conv = tf.nn.conv2d(input, w, strides=[1, s, s, 1], padding='SAME')
         biases = tf.get_variable('biases', [output_shape],
                                  initializer=tf.constant_initializer(0.0))
-        activation = activation_fn(conv + biases)
+        if activation_fn is not None:
+            activation = activation_fn(conv + biases)
+        else:
+            activation = conv + biases
         output = norm(activation, norm_type, is_train)
     if info: log.info('{} {}'.format(name, output))
     return output
@@ -80,3 +82,20 @@ def fc(input, output_shape, is_train, info=False,
     output = norm(activation, norm_type, is_train)
     if info: log.info('{} {}'.format(name, output))
     return output
+
+
+def residual_block(input, output_shape, is_train, info=False, k=3, s=1,
+                   name="residual", activation_fn=lrelu, norm_type='batch'):
+    with tf.variable_scope(name):
+        with tf.variable_scope('res1'):
+            _ = conv2d(input, output_shape, is_train, k=k, s=s,
+                       activation_fn=None, norm_type=norm_type)
+            _ = norm(_, norm_type, is_train)
+            _ = activation_fn(_)
+        with tf.variable_scope('res2'):
+            _ = conv2d(_, output_shape, is_train, k=k, s=s,
+                       activation_fn=None, norm_type=norm_type)
+            _ = norm(_, norm_type, is_train)
+        _ = activation_fn(_ + input)
+        if info: log.info('{} {}'.format(name, _.get_shape().as_list()))
+    return _

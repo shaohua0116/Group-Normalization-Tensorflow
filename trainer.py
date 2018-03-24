@@ -212,7 +212,8 @@ def main():
     parser.add_argument('--prefix', type=str, default='default')
     parser.add_argument('--checkpoint', type=str, default=None)
     parser.add_argument('--dataset', type=str, default='MNIST',
-                        choices=['MNIST', 'Fashion', 'SVHN', 'CIFAR10'])
+                        choices=['MNIST', 'Fashion', 'SVHN',
+                                 'CIFAR10', 'ImageNet'])
     parser.add_argument('--norm_type', type=str, default='batch',
                         choices=['batch', 'group'])
     # Log
@@ -236,6 +237,8 @@ def main():
         import datasets.svhn as dataset
     elif config.dataset == 'CIFAR10':
         import datasets.cifar10 as dataset
+    elif config.dataset == 'ImageNet':
+        import datasets.ImageNet as dataset
     else:
         raise ValueError(config.dataset)
 

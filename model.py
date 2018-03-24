@@ -5,7 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
-from ops import conv2d, fc
+from ops import conv2d, fc, residual_block
 from util import log, train_test_summary
 
 
@@ -66,19 +66,41 @@ class Model(object):
                 log.warn(scope.name)
                 _ = img
 
-                # conv layers
-                num_channels = [64, 128, 256, 512]
-                for i in range(len(num_channels)):
-                    _ = conv2d(_, num_channels[i], is_train, norm_type=self.norm_type,
-                               info=not reuse, name='conv_{}'.format(i))
-                    _ = slim.dropout(_, keep_prob=0.5, is_training=is_train)
+                # MNIST, Fashion MNIST, SVHN, CIFAR
+                if not self.config.dataset == 'ImageNet':
+                    # conv layers
+                    num_channels = [64, 128, 256, 512]
+                    for i in range(len(num_channels)):
+                        _ = conv2d(_, num_channels[i], is_train, norm_type=self.norm_type,
+                                   info=not reuse, name='conv_{}'.format(i))
+                        _ = slim.dropout(_, keep_prob=0.5, is_training=is_train)
 
-                # fc layers
-                _ = tf.reshape(_, [self.batch_size, -1])
-                num_fc_channels = [512, 128, 32, n]
-                for i in range(len(num_fc_channels)):
-                    _ = fc(_, num_fc_channels[i], is_train, norm_type='none',
-                           info=not reuse, name='fc_{}'.format(i))
+                    # fc layers
+                    _ = tf.reshape(_, [self.batch_size, -1])
+                    num_fc_channels = [512, 128, 32, n]
+                    for i in range(len(num_fc_channels)):
+                        _ = fc(_, num_fc_channels[i], is_train, norm_type='none',
+                               info=not reuse, name='fc_{}'.format(i))
+                # ImageNet
+                else:
+                    # conv layers
+                    num_channels = [64, 128, 256, 512, 1024]
+                    num_residual_block = [0, 2, 3, 5, 2]
+                    for i in range(len(num_channels)):
+                        _ = conv2d(_, num_channels[i], is_train, norm_type=self.norm_type,
+                                   info=not reuse, name='conv_{}'.format(i))
+                        for j in range(num_residual_block[i]):
+                            _ = residual_block(_, num_channels[i], is_train,
+                                               norm_type=self.norm_type, info=not reuse,
+                                               name='residual_{}_{}'.format(i, j))
+                    _ = tf.layers.average_pooling2d(_, [7, 7], [7, 7])
+                    log.info('{} {}'.format(_.name, _.get_shape().as_list()))
+                    # fc layers
+                    _ = tf.reshape(_, [self.batch_size, -1])
+                    num_fc_channels = [n]
+                    for i in range(len(num_fc_channels)):
+                        _ = fc(_, num_fc_channels[i], is_train, norm_type='none',
+                               info=not reuse, name='fc_{}'.format(i))
                 return _
 
         logits = C(self.image)
