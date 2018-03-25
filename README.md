@@ -7,7 +7,11 @@ Motivated by this phenomenon, the Group Normalization (GN) technique is proposed
 
 <img src="figure/gn.png" height="250"/>
 
-The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. $N$ denotes the batch axis, $C$ denotes the channel axis, and $H, W$ as the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
+The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. N denotes the batch axis, C denotes the channel axis, and H, W denote the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
+
+Based on the implementation of this repository, GN is 20% slower than BN, which is probably because of the extra reshape and transpose operations.
+
+\*This code is still being developed and subject to change.
 
 ## Prerequisites
 
