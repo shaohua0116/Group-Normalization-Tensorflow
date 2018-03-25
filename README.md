@@ -9,7 +9,7 @@ Motivated by this phenomenon, the Group Normalization (GN) technique is proposed
 
 The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. N denotes the batch axis, C denotes the channel axis, and H, W denote the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
 
-Based on the implementation of this repository, GN is 20% slower than BN, which is probably because of the extra reshape and transpose operations.
+Based on the implementation of this repository, GN is around 20% slower than BN on datasets such as CIFAR-10 and SVHN, which is probably because of the extra reshape and transpose operations. However, when the network goes deeper and the number of channels increase, GN gets even slower due to a larger group size. The model uses GN is around 4 times slower than the one uses BN when being trained ImageNet. This is not reported in the original GN paper.
 
 \*This code is still being developed and subject to change.
 
