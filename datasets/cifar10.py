@@ -56,7 +56,7 @@ class Dataset(object):
 
 
 def create_default_splits(is_train=True):
-    id_train, id_test = all_ids(60000)
+    id_train, id_test = all_ids(50000)
 
     dataset_train = Dataset(id_train, name='train', is_train=False)
     dataset_test = Dataset(id_test, name='test', is_train=False)

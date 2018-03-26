@@ -7,7 +7,11 @@ Motivated by this phenomenon, the Group Normalization (GN) technique is proposed
 
 <img src="figure/gn.png" height="250"/>
 
-The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. $N$ denotes the batch axis, $C$ denotes the channel axis, and $H, W$ as the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
+The illustration from the original GN paper. Each cube represent a 4D tensor of feature maps. Note that the spatial dimension are combined as a single dimension for visualization. N denotes the batch axis, C denotes the channel axis, and H, W denote the spatial axes. The values in blue are normalized by the same mean and variance, computed by aggregating the values of these pixels.
+
+Based on the implementation of this repository, GN is around 20% slower than BN on datasets such as CIFAR-10 and SVHN, which is probably because of the extra reshape and transpose operations. However, when the network goes deeper and the number of channels increase, GN gets even slower due to a larger group size. The model uses GN is around 4 times slower than the one uses BN when being trained ImageNet. This is not reported in the original GN paper.
+
+\*This code is still being developed and subject to change.
 
 ## Prerequisites
 
@@ -19,10 +23,13 @@ The illustration from the original GN paper. Each cube represent a 4D tensor of 
 ## Usage
 
 ### Datasets
-Download datasets with:
+Train models on MNIST, Fashion MNIST, SVHN, CIFAR-10 datasets:
+- Download datasets with:
 ```bash
 $ python download.py --dataset MNIST Fashion SVHN CIFAR10
 ```
+Train models on [ImageNet](http://image-net.org/download-images)
+- The ImageNet dataset is located in the Downloads section of the [website](http://image-net.org/download-images). Please specify the path to the downloaded dataset by changing the variable `__IMAGENET_IMG_PATH__` in `datasets/ImageNet.py`. Also, please provide a list of file names for trainings in the directory `__IMAGENET_LIST_PATH__` with the file name `train_list.txt`. By default, the `train_list.txt` includes all the training images in ImageNet dataset.
 
 ### Train models with downloaded datasets:
 Specify the type of normalization you want to use by `--norm_type batch` or `--norm_type group` 
@@ -53,6 +60,58 @@ $ python evaler.py --dataset YOUR_DATASET
 ```
 
 ## Results
+
+### CIFAR-10
+
+| Color    | Batch Size |
+| :------- | ---------- |
+| Orange   | 1          |
+| Blue     | 2          |
+| Sky blue | 4          |
+| Red      | 8          |
+| Green    | 16         |
+| Pink     | 32         |
+
+- Loss
+
+  <img src="figure/cifar_group_loss.png" height="250"/>
+
+- Accuracy
+
+<img src="figure/cifar_group_acc.png" height="250"/>
+
+### SVHN
+
+| Color    | Batch Size |
+| :------- | ---------- |
+| Pink     | 1          |
+| Blue     | 2          |
+| Sky blue | 4          |
+| Green    | 8          |
+| Red      | 16         |
+| Orange   | 32         |
+
+- Loss
+
+  <img src="figure/svhn_group_loss.png" height="250"/>
+
+- Accuracy
+
+<img src="figure/svhn_group_acc.png" height="250"/>
+
+### ImageNet
+
+The trainings are ongoing...
+
+| Color  | Norm Type           |
+| :----- | ------------------- |
+| Orange | Group Normalization |
+| Blue   | Batch Normalization |
+
+<img src="figure/imagenet_ongoing.png" height="250"/>
+
+### Conclusion
+The Group Normalization divides the channels into groups and computes within each group the mean and variance, and therefore its performance independent of training batch sizes, which is verified with this implementation. However, the performance of Batch Normalization does not vary a lot with different batch sizes on smaller image datasets including CIFAR-10, SVHN, etc. The ImageNet experiments are ongoing and the results will be updated later.
 
 ## Related works
 * [Group Normalization](https://arxiv.org/abs/1803.08494)
