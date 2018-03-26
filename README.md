@@ -104,6 +104,13 @@ $ python evaler.py --dataset YOUR_DATASET
 
 The trainings are ongoing...
 
+| Color    | Norm Type           |
+| :------- | ------------------- |
+| Orange   | Group Normalization |
+| Blue     | Batch Normalization |
+
+<img src="figure/imagenet_ongoing.png" height="250"/>
+
 ## Related works
 
 * [Group Normalization](https://arxiv.org/abs/1803.08494)
