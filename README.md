@@ -104,12 +104,15 @@ $ python evaler.py --dataset YOUR_DATASET
 
 The trainings are ongoing...
 
-| Color    | Norm Type           |
-| :------- | ------------------- |
-| Orange   | Group Normalization |
-| Blue     | Batch Normalization |
+| Color  | Norm Type           |
+| :----- | ------------------- |
+| Orange | Group Normalization |
+| Blue   | Batch Normalization |
 
 <img src="figure/imagenet_ongoing.png" height="250"/>
+
+### Conclusion
+The Group Normalization divides the channels into groups and computes within each group the mean and variance, and therefore its performance independent of training batch sizes, which is verified with this implementation. However, the performance of Batch Normalization does not vary a lot with different batch sizes on smaller image datasets including CIFAR-10, SVHN, etc. The ImageNet experiments are ongoing and the results will be updated later.
 
 ## Related works
 
