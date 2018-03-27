@@ -28,6 +28,10 @@ Train models on MNIST, Fashion MNIST, SVHN, CIFAR-10 datasets:
 ```bash
 $ python download.py --dataset MNIST Fashion SVHN CIFAR10
 ```
+Train models on [Tiny ImageNet](https://tiny-imagenet.herokuapp.com/)
+- Download the dataset from the [webpage](https://tiny-imagenet.herokuapp.com/).
+- Move the downloaded file (named ) to `datasets/tiny_imagenet` and unzip it.
+
 Train models on [ImageNet](http://image-net.org/download-images)
 - The ImageNet dataset is located in the Downloads section of the [website](http://image-net.org/download-images). Please specify the path to the downloaded dataset by changing the variable `__IMAGENET_IMG_PATH__` in `datasets/ImageNet.py`. Also, please provide a list of file names for trainings in the directory `__IMAGENET_LIST_PATH__` with the file name `train_list.txt`. By default, the `train_list.txt` includes all the training images in ImageNet dataset.
 

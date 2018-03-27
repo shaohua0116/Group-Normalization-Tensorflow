@@ -140,7 +140,7 @@ class Trainer(object):
         log.infov("Training Starts!")
         pprint(self.batch_train)
 
-        max_steps = 1000000
+        max_steps = 50000
 
         ckpt_save_step = self.config.ckpt_save_step
         log_step = self.log_step
@@ -237,7 +237,7 @@ def main():
     parser.add_argument('--checkpoint', type=str, default=None)
     parser.add_argument('--dataset', type=str, default='MNIST',
                         choices=['MNIST', 'Fashion', 'SVHN',
-                                 'CIFAR10', 'ImageNet'])
+                                 'CIFAR10', 'ImageNet', 'TinyImageNet'])
     parser.add_argument('--norm_type', type=str, default='batch',
                         choices=['batch', 'group'])
     # Log
@@ -259,8 +259,10 @@ def main():
         import datasets.svhn as dataset
     elif config.dataset == 'CIFAR10':
         import datasets.cifar10 as dataset
+    elif config.dataset == 'TinyImageNet':
+        import datasets.tiny_imagenet as dataset
     elif config.dataset == 'ImageNet':
-        import datasets.ImageNet as dataset
+        import datasets.imagenet as dataset
     else:
         raise ValueError(config.dataset)
 
