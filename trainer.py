@@ -140,15 +140,13 @@ class Trainer(object):
         log.infov("Training Starts!")
         pprint(self.batch_train)
 
-        max_steps = 50000
-
         ckpt_save_step = self.config.ckpt_save_step
         log_step = self.log_step
         test_sample_step = self.test_sample_step
         write_summary_step = self.write_summary_step
         step = 0
 
-        for s in xrange(max_steps):
+        for s in xrange(self.config.max_training_step):
             # periodic inference
             if s % test_sample_step == 0:
                 accuracy, test_summary, loss, step_time = \
@@ -233,7 +231,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--max_batch_size', type=int, default=64)
-    parser.add_argument('--prefix', type=str, default='default')
+    parser.add_argument('--prefix', type=str, default='default',
+                        help='the nickname of this training job')
     parser.add_argument('--checkpoint', type=str, default=None)
     parser.add_argument('--dataset', type=str, default='MNIST',
                         choices=['MNIST', 'Fashion', 'SVHN',
@@ -241,6 +240,7 @@ def main():
     parser.add_argument('--norm_type', type=str, default='batch',
                         choices=['batch', 'group'])
     # Log
+    parser.add_argument('--max_training_step', type=int, default=100000)
     parser.add_argument('--log_step', type=int, default=10)
     parser.add_argument('--test_sample_step', type=int, default=10)
     parser.add_argument('--write_summary_step', type=int, default=10)

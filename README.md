@@ -1,5 +1,9 @@
 # Group Normalization
 
+As part of the implementation series of [Joseph Lim's group at USC](http://csail.mit.edu/~lim), our motivation is to accelerate (or sometimes delay) research in the AI community by promoting open-source projects. To this end, we implement state-of-the-art research papers, and publicly share them with concise reports. Please visit our [group github site](https://github.com/gitlimlab) for other projects.
+
+This project is implemented by [Shao-Hua Sun](http://shaohua0116.github.io) and the codes have been reviewed by [Te-Lin Wu](https://github.com/telin0411) before being published.
+
 ## Descriptions
 This project includes a Tensorflow implementation of Group Normalizations proposed in the paper [Group Normalization](https://arxiv.org/abs/1803.08494) by Wu et al. [Batch Normalization](https://arxiv.org/abs/1502.03167) (BN) has been widely employed in the trainings of deep neural networks to alleviate the internal covariate shift [1].Specifically, BN aims to transform the inputs of each layer in such a way that they have a mean output activation of zero and standard deviation of one. While BN demonstrates it effectiveness in a variety of fields including computer vision, natural language processing, speech processing, robotics, etc., BN's performance substantially decrease when the training batch size become smaller, which limits the gain of utilizing BN in a task requiring small batches constrained by memory consumption. 
 
@@ -120,6 +124,8 @@ The Group Normalization divides the channels into groups and computes within eac
 ## Related works
 * [Group Normalization](https://arxiv.org/abs/1803.08494)
 * [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)
+* [Layer Normalization](https://arxiv.org/abs/1607.06450)
+* [Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/abs/1607.08022)
 
 ## Author
 
