@@ -19,7 +19,7 @@ Based on the implementation of this repository, GN is around 20% slower than BN 
 
 ## Prerequisites
 
-- Python 2.7 or Python 3.3+
+- Python 2.7
 - [Tensorflow 1.3.0](https://github.com/tensorflow/tensorflow/tree/r1.0)
 - [SciPy](http://www.scipy.org/install.html)
 - [NumPy](http://www.numpy.org/)
